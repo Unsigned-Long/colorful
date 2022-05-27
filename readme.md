@@ -43,7 +43,7 @@ std::string decorate(const Type &obj, const std::string &flags);
  * @param g the greent channel value
  * @param b the blue channel value
  */
-static std::string create(ushort r, ushort g, ushort b);
+static std::string ForeColor::create(uchar r, uchar g, uchar b);
 ```
 
 ```cpp
@@ -54,7 +54,7 @@ static std::string create(ushort r, ushort g, ushort b);
  * @param g the greent channel value
  * @param b the blue channel value
  */
-static std::string create(ushort r, ushort g, ushort b);
+static std::string BackColor::create(uchar r, uchar g, uchar b);
 ```
 
 ```cpp
