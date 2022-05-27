@@ -5,96 +5,75 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace ns_cf {
   namespace ns_priv {
-    static const std::string prefix = "\033[";
-    static const std::string suffix = "m";
+    static constexpr const char *prefix = "\033[";
+    static constexpr const char *suffix = "m";
     // clean previous settings
-    static const std::string none = "\033[0m";
+    static constexpr const char *none = "\033[0m";
   } // namespace ns_priv
-
-  using ushort = unsigned short;
-  using uchar = unsigned char;
 
   /**
    * @brief foreground color for content
    */
   namespace ForeColor {
-    /**
-     * @brief create the foreground color from [r, g, b]
-     *
-     * @param r the  red channel value
-     * @param g the greent channel value
-     * @param b the blue channel value
-     */
-    static std::string create(uchar r, uchar g, uchar b) {
-      std::stringstream stream;
-      stream << ";38;2;" << (ushort)r << ';' << (ushort)g << ';' << (ushort)b;
-      return stream.str();
-    }
 
-#define FORE_COLOR_DEFINE(r, g, b) \
-  std::string(";38;2;") + #r + ';' + #g + ';' + #b
+#define FORE_COLOR(r, g, b) \
+  ";38;2;" #r ";" #g ";" #b
 
     // predefined colors
-    static const std::string RED = FORE_COLOR_DEFINE(255, 0, 0);
-    static const std::string GREEN = FORE_COLOR_DEFINE(0, 255, 0);
-    static const std::string BLUE = FORE_COLOR_DEFINE(0, 0, 255);
-    static const std::string BLACK = FORE_COLOR_DEFINE(0, 0, 0);
-    static const std::string WHITE = FORE_COLOR_DEFINE(255, 255, 255);
-    static const std::string GRAY = FORE_COLOR_DEFINE(192, 192, 192);
-    static const std::string YELLOW = FORE_COLOR_DEFINE(255, 255, 0);
-    static const std::string ORANGE = FORE_COLOR_DEFINE(255, 97, 0);
-    static const std::string PURPLE = FORE_COLOR_DEFINE(255, 0, 255);
-    static const std::string CYAN = FORE_COLOR_DEFINE(0, 255, 255);
+    static constexpr const char *RED = FORE_COLOR(255, 0, 0);
+    static constexpr const char *GREEN = FORE_COLOR(0, 255, 0);
+    static constexpr const char *BLUE = FORE_COLOR(0, 0, 255);
+    static constexpr const char *BLACK = FORE_COLOR(0, 0, 0);
+    static constexpr const char *WHITE = FORE_COLOR(255, 255, 255);
+    static constexpr const char *GRAY = FORE_COLOR(192, 192, 192);
+    static constexpr const char *YELLOW = FORE_COLOR(255, 255, 0);
+    static constexpr const char *ORANGE = FORE_COLOR(255, 97, 0);
+    static constexpr const char *PURPLE = FORE_COLOR(255, 0, 255);
+    static constexpr const char *CYAN = FORE_COLOR(0, 255, 255);
 
-#undef FORE_COLOR_DEFINE
   };
 
+  /**
+   * @brief background color for content
+   */
   namespace BackColor {
-    /**
-     * @brief create the background color from [r, g, b]
-     *
-     * @param r the  red channel value
-     * @param g the greent channel value
-     * @param b the blue channel value
-     */
-    static std::string create(uchar r, uchar g, uchar b) {
-      std::stringstream stream;
-      stream << ";48;2;" << (ushort)r << ';' << (ushort)g << ';' << (ushort)b;
-      return stream.str();
-    }
 
-#define BACK_COLOR_DEFINE(r, g, b) \
-  std::string(";48;2;") + #r + ';' + #g + ';' + #b
+#define BACK_COLOR(r, g, b) \
+  ";48;2;" #r ";" #g ";" #b
+
     // predefined colors
-    static const std::string RED = BACK_COLOR_DEFINE(255, 0, 0);
-    static const std::string GREEN = BACK_COLOR_DEFINE(0, 255, 0);
-    static const std::string BLUE = BACK_COLOR_DEFINE(0, 0, 255);
-    static const std::string BLACK = BACK_COLOR_DEFINE(0, 0, 0);
-    static const std::string WHITE = BACK_COLOR_DEFINE(255, 255, 255);
-    static const std::string GRAY = BACK_COLOR_DEFINE(192, 192, 192);
-    static const std::string YELLOW = BACK_COLOR_DEFINE(255, 255, 0);
-    static const std::string ORANGE = BACK_COLOR_DEFINE(255, 97, 0);
-    static const std::string PURPLE = BACK_COLOR_DEFINE(255, 0, 255);
-    static const std::string CYAN = BACK_COLOR_DEFINE(0, 255, 255);
+    static constexpr const char *RED = BACK_COLOR(255, 0, 0);
+    static constexpr const char *GREEN = BACK_COLOR(0, 255, 0);
+    static constexpr const char *BLUE = BACK_COLOR(0, 0, 255);
+    static constexpr const char *BLACK = BACK_COLOR(0, 0, 0);
+    static constexpr const char *WHITE = BACK_COLOR(255, 255, 255);
+    static constexpr const char *GRAY = BACK_COLOR(192, 192, 192);
+    static constexpr const char *YELLOW = BACK_COLOR(255, 255, 0);
+    static constexpr const char *ORANGE = BACK_COLOR(255, 97, 0);
+    static constexpr const char *PURPLE = BACK_COLOR(255, 0, 255);
+    static constexpr const char *CYAN = BACK_COLOR(0, 255, 255);
 
-#undef BACK_COLOR_DEFINE
   };
 
   namespace FontProp {
-#define FONT_PROP_DEFINE(code) \
-  std::string(";") + #code
-    static const std::string BOLD = FONT_PROP_DEFINE(1);
-    static const std::string DARKEN = FONT_PROP_DEFINE(2);
-    static const std::string ITALIC = FONT_PROP_DEFINE(3);
-    static const std::string UNDERLINE = FONT_PROP_DEFINE(4);
-    static const std::string TWINKLE = FONT_PROP_DEFINE(5);
-    static const std::string FLASH = FONT_PROP_DEFINE(6);
-    static const std::string REVERSE = FONT_PROP_DEFINE(7);
-    static const std::string INVISABLE = FONT_PROP_DEFINE(8);
-    static const std::string CROSS = FONT_PROP_DEFINE(9);
+#define FONT_PROP(code) \
+  ";" #code
+
+    static constexpr const char *BOLD = FONT_PROP(1);
+    static constexpr const char *DARKEN = FONT_PROP(2);
+    static constexpr const char *ITALIC = FONT_PROP(3);
+    static constexpr const char *UNDERLINE = FONT_PROP(4);
+    static constexpr const char *TWINKLE = FONT_PROP(5);
+    static constexpr const char *FLASH = FONT_PROP(6);
+    static constexpr const char *REVERSE = FONT_PROP(7);
+    static constexpr const char *INVISABLE = FONT_PROP(8);
+    static constexpr const char *CROSS = FONT_PROP(9);
+
+#undef FONT_PROP
   } // namespace FontProp
 
   /**
@@ -106,9 +85,13 @@ namespace ns_cf {
    * @return std::string the result string
    */
   template <typename Type>
-  std::string decorate(const Type &obj, const std::string &flags) {
+  std::string decorate(const Type &obj, const std::vector<const char *> &flags) {
     std::stringstream stream;
-    stream << ns_priv::prefix << flags << ns_priv::suffix << obj << ns_priv::none;
+    stream << ns_priv::prefix;
+    for (const auto &elem : flags) {
+      stream << elem;
+    }
+    stream << ns_priv::suffix << obj << ns_priv::none;
     return stream.str();
   }
 

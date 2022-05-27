@@ -18,7 +18,7 @@ code
 
 output
 
-<img src="./img/console.png" width=82%>
+<img src="./img/console.png" width=83%>
 
 ## 3. Apis
 
@@ -36,37 +36,35 @@ std::string decorate(const Type &obj, const std::string &flags);
 ```
 
 ```cpp
-/**
- * @brief create the foreground color from [r, g, b]
- *
- * @param r the  red channel value
- * @param g the greent channel value
- * @param b the blue channel value
- */
-static std::string ForeColor::create(uchar r, uchar g, uchar b);
+#define BACK_COLOR(r, g, b)
 ```
 
 ```cpp
-/**
- * @brief create the background color from [r, g, b]
- *
- * @param r the  red channel value
- * @param g the greent channel value
- * @param b the blue channel value
- */
-static std::string BackColor::create(uchar r, uchar g, uchar b);
+#define FORE_COLOR(r, g, b)
 ```
 
 ```cpp
-static const std::string RED = BACK_COLOR_DEFINE(255, 0, 0);
-static const std::string GREEN = BACK_COLOR_DEFINE(0, 255, 0);
-static const std::string BLUE = BACK_COLOR_DEFINE(0, 0, 255);
-static const std::string BLACK = BACK_COLOR_DEFINE(0, 0, 0);
-static const std::string WHITE = BACK_COLOR_DEFINE(255, 255, 255);
-static const std::string GRAY = BACK_COLOR_DEFINE(192, 192, 192);
-static const std::string YELLOW = BACK_COLOR_DEFINE(255, 255, 0);
-static const std::string ORANGE = BACK_COLOR_DEFINE(255, 97, 0);
-static const std::string PURPLE = BACK_COLOR_DEFINE(255, 0, 255);
-static const std::string CYAN = BACK_COLOR_DEFINE(0, 255, 255);
+static constexpr const char *RED = BACK_COLOR(255, 0, 0);
+static constexpr const char *GREEN = BACK_COLOR(0, 255, 0);
+static constexpr const char *BLUE = BACK_COLOR(0, 0, 255);
+static constexpr const char *BLACK = BACK_COLOR(0, 0, 0);
+static constexpr const char *WHITE = BACK_COLOR(255, 255, 255);
+static constexpr const char *GRAY = BACK_COLOR(192, 192, 192);
+static constexpr const char *YELLOW = BACK_COLOR(255, 255, 0);
+static constexpr const char *ORANGE = BACK_COLOR(255, 97, 0);
+static constexpr const char *PURPLE = BACK_COLOR(255, 0, 255);
+static constexpr const char *CYAN = BACK_COLOR(0, 255, 255);
+```
+
+```cpp
+static constexpr const char *BOLD = FONT_PROP(1);
+static constexpr const char *DARKEN = FONT_PROP(2);
+static constexpr const char *ITALIC = FONT_PROP(3);
+static constexpr const char *UNDERLINE = FONT_PROP(4);
+static constexpr const char *TWINKLE = FONT_PROP(5);
+static constexpr const char *FLASH = FONT_PROP(6);
+static constexpr const char *REVERSE = FONT_PROP(7);
+static constexpr const char *INVISABLE = FONT_PROP(8);
+static constexpr const char *CROSS = FONT_PROP(9);
 ```
 

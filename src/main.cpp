@@ -1,19 +1,15 @@
-
 #include "colorful.hpp"
 
 using namespace ns_cf;
 
-#define TESTING(context, flags) \
-  std::cout << "[" << decorate(context, flags) << "]-[" << #flags << "]" << std::endl;
-
 int main(int argc, char const *argv[]) {
-  std::string str("Hello, world!");
-  TESTING(str, FontProp::CROSS + ForeColor::RED);
-  TESTING(str, FontProp::UNDERLINE);
-  TESTING(str, FontProp::FLASH);
-  TESTING(str, FontProp::ITALIC);
-  TESTING(str, FontProp::BOLD);
-  TESTING(str, BackColor::ORANGE);
-  TESTING(str, BackColor::CYAN + FontProp::BOLD + FontProp::ITALIC + FontProp::CROSS);
+  std::cout << decorate("Hello, world!", {FontProp::CROSS, FORE_COLOR(255, 0, 0)}) << std::endl;
+  std::cout << decorate("Hello, world!", {FontProp::UNDERLINE}) << std::endl;
+  std::cout << decorate("Hello, world!", {FontProp::FLASH}) << std::endl;
+  std::cout << decorate("Hello, world!", {FontProp::ITALIC}) << std::endl;
+  std::cout << decorate("Hello, world!", {FontProp::BOLD}) << std::endl;
+  std::cout << decorate("Hello, world!", {BackColor::ORANGE}) << std::endl;
+  std::cout << decorate("Hello, world!", {BackColor::CYAN, FontProp::BOLD, FontProp::ITALIC, FontProp::CROSS}) << std::endl;
+
   return 0;
 }
