@@ -15,6 +15,7 @@ namespace ns_cf {
   } // namespace ns_priv
 
   using ushort = unsigned short;
+  using uchar = unsigned char;
 
   /**
    * @brief foreground color for content
@@ -27,9 +28,9 @@ namespace ns_cf {
      * @param g the greent channel value
      * @param b the blue channel value
      */
-    static std::string create(ushort r, ushort g, ushort b) {
+    static std::string create(uchar r, uchar g, uchar b) {
       std::stringstream stream;
-      stream << ";38;2;" << r << ';' << g << ';' << b;
+      stream << ";38;2;" << (ushort)r << ';' << (ushort)g << ';' << (ushort)b;
       return stream.str();
     }
 
@@ -59,9 +60,9 @@ namespace ns_cf {
      * @param g the greent channel value
      * @param b the blue channel value
      */
-    static std::string create(ushort r, ushort g, ushort b) {
+    static std::string create(uchar r, uchar g, uchar b) {
       std::stringstream stream;
-      stream << ";48;2;" << r << ';' << g << ';' << b;
+      stream << ";48;2;" << (ushort)r << ';' << (ushort)g << ';' << (ushort)b;
       return stream.str();
     }
 
