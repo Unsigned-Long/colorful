@@ -1,5 +1,5 @@
-#ifndef COLORFUL_H
-#define COLORFUL_H
+#ifndef COLOR_TERMINAL_H
+#define COLOR_TERMINAL_H
 #ifdef __linux__
 
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace ns_cf {
+namespace ns_ct {
   namespace ns_priv {
     static constexpr const char *prefix = "\033[";
     static constexpr const char *suffix = "m";

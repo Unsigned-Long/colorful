@@ -1,6 +1,6 @@
-#include "colorful.hpp"
+#include "color_terminal.hpp"
 
-using namespace ns_cf;
+using namespace ns_ct;
 
 int main(int argc, char const *argv[]) {
   std::cout << decorate("Hello, world!", {FontProp::CROSS, FORE_COLOR(255, 0, 0)}) << std::endl;
