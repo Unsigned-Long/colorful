@@ -72,12 +72,12 @@ static constexpr const char *CROSS = FONT_PROP(9);
 
 ```cpp
 // Continuous mapping
-  static Crgb mapping(float value, float srcMin, float srcMax, const HSVMapping &map = style::panchromatic, bool reversal = false);
+  static Crgb mapping(float value, float srcMin, float srcMax, const HSVMapping &mapValue = style::panchromatic, bool reversal = false);
 ```
 
 ```cpp
 // Discrete mapping
-  static Crgb mapping(float value, float srcMin, float srcMax, ushort classes, const HSVMapping &map = style::panchromatic, bool reversal = false);
+  static Crgb mapping(float value, float srcMin, float srcMax, ushort classes, const HSVMapping &mapValue = style::panchromatic, bool reversal = false);
 ```
 
 ```cpp
@@ -116,13 +116,13 @@ const static ValMapping black_blue{0.0, 1.0, 240.0, 1.0};
 ```cpp
 // or define by yourself
 
-// map value to hue dime
+// mapValue value to hue dime
 struct HueMapping : public HSVMapping {...}
 
-// map value to sat dime
+// mapValue value to sat dime
 struct SatMapping : public HSVMapping {...}
 
-// map value to val dime
+// mapValue value to val dime
 struct ValMapping : public HSVMapping {...}
 ```
 

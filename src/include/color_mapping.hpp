@@ -1,7 +1,6 @@
 #ifndef COLOR_MAPPING_H
 #define COLOR_MAPPING_H
 
-#include "artwork/logger/logger.h"
 #include <cmath>
 #include <iostream>
 
@@ -57,7 +56,7 @@ namespace ns_cm {
     int temp = int(flag / 2.0f);
 
     float C = V * S;
-    float X = C * (1.0f - std::abs(flag - 2.0f * temp - 1));
+    float X = C * (1.0f - std::abs(flag - 2.0f * (float)temp - 1));
     float m = V - C;
 
     float r, g, b;
@@ -77,14 +76,13 @@ namespace ns_cm {
     case 4:
       r = X, g = 0.0f, b = C;
       break;
+      // case [5] and [6] are same
     case 5:
-      r = C, g = 0.0f, b = X;
-      break;
     case 6:
       r = C, g = 0.0f, b = X;
       break;
     default:
-      LOG_VAR(hsv);
+      r = g = b = 0.0f;
       break;
     }
 
@@ -93,24 +91,24 @@ namespace ns_cm {
 
   struct HSVMapping {
   protected:
-    mutable float map;
+    mutable float mapValue;
 
     union {
-      // map to hue
+      // mapValue to hue
       struct {
         float startHue;
         float endHue;
         float sat;
         float val;
       } hueMapping;
-      // map to sat
+      // mapValue to sat
       struct {
         float hue;
         float startSat;
         float endSat;
         float val;
       } satMapping;
-      // map to val
+      // mapValue to val
       struct {
         float hue;
         float sat;
@@ -118,12 +116,11 @@ namespace ns_cm {
         float endVal;
       } valMapping;
     };
-
     HSVMapping() = default;
 
   public:
-    const HSVMapping &setMap(float map) const {
-      this->map = map;
+    const HSVMapping &setMap(float mapValue) const {
+      this->mapValue = mapValue;
       return *this;
     }
     virtual float getStart() const = 0;
@@ -131,96 +128,96 @@ namespace ns_cm {
     virtual Chsv construct() const = 0;
   };
 
-  // map value to hue dime
+  // mapValue value to hue dime
   struct HueMapping : public HSVMapping {
-    HueMapping(float startHue, float endHue, float sat, float val) : HSVMapping() {
+    HueMapping(float startHue, float endHue, float sat, float val) noexcept : HSVMapping() {
       this->hueMapping.startHue = startHue;
       this->hueMapping.endHue = endHue;
       this->hueMapping.sat = sat;
       this->hueMapping.val = val;
     }
 
-    virtual float getStart() const override {
+    float getStart() const override {
       return this->hueMapping.startHue;
     }
-    virtual float getEnd() const override {
+    float getEnd() const override {
       return this->hueMapping.endHue;
     }
-    virtual Chsv construct() const override {
-      return Chsv(this->map, this->hueMapping.sat, this->hueMapping.val);
+    Chsv construct() const override {
+      return {this->mapValue, this->hueMapping.sat, this->hueMapping.val};
     }
   };
 
-  // map value to sat dime
+  // mapValue value to sat dime
   struct SatMapping : public HSVMapping {
-    SatMapping(float startSat, float endSat, float hue, float val) : HSVMapping() {
+    SatMapping(float startSat, float endSat, float hue, float val) noexcept : HSVMapping() {
       this->satMapping.hue = hue;
       this->satMapping.startSat = startSat;
       this->satMapping.endSat = endSat;
       this->satMapping.val = val;
     }
 
-    virtual float getStart() const override {
+    float getStart() const override {
       return this->satMapping.startSat;
     }
-    virtual float getEnd() const override {
+    float getEnd() const override {
       return this->satMapping.endSat;
     }
-    virtual Chsv construct() const override {
-      return Chsv(this->satMapping.hue, this->map, this->satMapping.val);
+    Chsv construct() const override {
+      return {this->satMapping.hue, this->mapValue, this->satMapping.val};
     }
   };
 
-  // map value to val dime
+  // mapValue value to val dime
   struct ValMapping : public HSVMapping {
-    ValMapping(float startVal, float endVal, float hue, float sat) : HSVMapping() {
+    ValMapping(float startVal, float endVal, float hue, float sat) noexcept : HSVMapping() {
       this->valMapping.hue = hue;
       this->valMapping.sat = sat;
       this->valMapping.startVal = startVal;
       this->valMapping.endVal = endVal;
     }
 
-    virtual float getStart() const override {
+    float getStart() const override {
       return this->valMapping.startVal;
     }
-    virtual float getEnd() const override {
+    float getEnd() const override {
       return this->valMapping.endVal;
     }
-    virtual Chsv construct() const override {
-      return Chsv(this->valMapping.hue, this->valMapping.sat, this->map);
+    Chsv construct() const override {
+      return {this->valMapping.hue, this->valMapping.sat, this->mapValue};
     }
   };
 
   namespace style {
-    const static HueMapping red_yellow{0.0, 60.0, 1.0, 1.0};
-    const static HueMapping yellow_green{45.0, 130.0, 1.0, 1.0};
-    const static HueMapping green_cyan{100.0, 190.0, 1.0, 1.0};
-    const static HueMapping cyan_blue{180.0, 240.0, 1.0, 1.0};
-    const static HueMapping blue_purple{220.0, 300.0, 1.0, 1.0};
-    const static HueMapping purple_red{290.0, 360.0, 1.0, 1.0};
-    const static HueMapping panchromatic{0.0, 360.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping red_yellow{0.0, 60.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping yellow_green{45.0, 130.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping green_cyan{100.0, 190.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping cyan_blue{180.0, 240.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping blue_purple{220.0, 300.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping purple_red{290.0, 360.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping panchromatic{0.0, 360.0, 1.0, 1.0};
 
-    const static SatMapping red{0.0, 1.0, 360.0, 1.0};
-    const static SatMapping pink{0.0, 1.0, 340.0, 1.0};
-    const static SatMapping purple{0.0, 1.0, 310.0, 1.0};
-    const static SatMapping blue{0.0, 1.0, 240.0, 1.0};
-    const static SatMapping cyan{0.0, 1.0, 190.0, 1.0};
-    const static SatMapping green{0.0, 1.0, 120.0, 1.0};
-    const static SatMapping yellow{0.0, 1.0, 60.0, 1.0};
-    const static SatMapping orange{0.0, 1.0, 20.0, 1.0};
+    [[maybe_unused]] const static SatMapping red{0.0, 1.0, 360.0, 1.0};
+    [[maybe_unused]] const static SatMapping pink{0.0, 1.0, 340.0, 1.0};
+    [[maybe_unused]] const static SatMapping purple{0.0, 1.0, 310.0, 1.0};
+    [[maybe_unused]] const static SatMapping blue{0.0, 1.0, 240.0, 1.0};
+    [[maybe_unused]] const static SatMapping cyan{0.0, 1.0, 190.0, 1.0};
+    [[maybe_unused]] const static SatMapping green{0.0, 1.0, 120.0, 1.0};
+    [[maybe_unused]] const static SatMapping yellow{0.0, 1.0, 60.0, 1.0};
+    [[maybe_unused]] const static SatMapping orange{0.0, 1.0, 20.0, 1.0};
 
-    const static HueMapping red_yellow_green{0.0, 150.0, 1.0, 1.0};
-    const static HueMapping yellow_green_cyan{50.0, 180.0, 1.0, 1.0};
-    const static HueMapping green_cyan_blue{50.0, 250.0, 1.0, 1.0};
-    const static HueMapping cyan_blue_purple{180.0, 300.0, 1.0, 1.0};
-    const static HueMapping blue_purple_red{240.0, 360.0, 1.0, 1.0};
-    const static HueMapping cold{180.0, 360.0, 1.0, 1.0};
-    const static HueMapping worm{0.0, 180.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping red_yellow_green{0.0, 150.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping yellow_green_cyan{50.0, 180.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping green_cyan_blue{50.0, 250.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping cyan_blue_purple{180.0, 300.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping blue_purple_red{240.0, 360.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping cold{180.0, 360.0, 1.0, 1.0};
+    [[maybe_unused]] const static HueMapping worm{0.0, 180.0, 1.0, 1.0};
 
-    const static ValMapping gray{0.0, 1.0, 0.0, 0.0};
-    const static ValMapping black_red{0.0, 1.0, 0.0, 1.0};
-    const static ValMapping black_green{0.0, 1.0, 120.0, 1.0};
-    const static ValMapping black_blue{0.0, 1.0, 240.0, 1.0};
+    [[maybe_unused]] const static ValMapping gray{0.0, 1.0, 0.0, 0.0};
+    [[maybe_unused]] const static ValMapping black_red{0.0, 1.0, 0.0, 1.0};
+    [[maybe_unused]] const static ValMapping black_green{0.0, 1.0, 120.0, 1.0};
+    [[maybe_unused]] const static ValMapping black_blue{0.0, 1.0, 240.0, 1.0};
 
   } // namespace ns_style
 
@@ -247,7 +244,7 @@ namespace ns_cm {
     // check range
     value < srcMin ? value = srcMin : float{};
     value > srcMax ? value = srcMax : float{};
-    // linner mapping
+    // liner mapping
     if (reversal) {
       value = srcMax - (value - srcMin);
     }
@@ -256,7 +253,7 @@ namespace ns_cm {
     if (classes == 0) {
       classes = 1;
     }
-    float pieceSize = (end - start) / classes;
+    float pieceSize = (end - start) / (float)classes;
     mapVal = int(mapVal / pieceSize) * pieceSize + 0.5f * pieceSize + start;
     if (mapVal > end) {
       mapVal = end - 0.5f * pieceSize;

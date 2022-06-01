@@ -4,7 +4,7 @@
 #include "opencv2/highgui.hpp"
 
 int main(int argc, char const *argv[]) {
-  auto depth = cv::imread("../img/depth.png", cv::IMREAD_UNCHANGED);
+  auto depth = cv::imread("../img/color_mapping/depth.png", cv::IMREAD_UNCHANGED);
   int rows = depth.rows, cols = depth.cols;
   LOG_VAR(rows, cols);
   cv::Mat color(cv::Size(cols, rows), CV_8UC3, cv::Scalar(255, 255, 255));
