@@ -1,6 +1,9 @@
 #ifndef COLOR_MAPPING_H
 #define COLOR_MAPPING_H
 
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -123,9 +126,12 @@ namespace ns_cm {
       this->mapValue = mapValue;
       return *this;
     }
-    virtual float getStart() const = 0;
-    virtual float getEnd() const = 0;
+    virtual float getStdStart() const = 0;
+    virtual float getStdEnd() const = 0;
+    virtual float getByteStart() const = 0;
+    virtual float getByteEnd() const = 0;
     virtual Chsv construct() const = 0;
+    virtual cv::Mat construct(cv::Mat mapMat) const = 0;
   };
 
   // mapValue value to hue dime
@@ -136,15 +142,29 @@ namespace ns_cm {
       this->hueMapping.sat = sat;
       this->hueMapping.val = val;
     }
-
-    float getStart() const override {
+    float getByteStart() const override {
+      return this->hueMapping.startHue / 360.0 * 255.0;
+    }
+    float getByteEnd() const override {
+      return this->hueMapping.endHue / 360.0 * 255.0;
+    }
+    float getStdStart() const override {
       return this->hueMapping.startHue;
     }
-    float getEnd() const override {
+    float getStdEnd() const override {
       return this->hueMapping.endHue;
     }
     Chsv construct() const override {
       return {this->mapValue, this->hueMapping.sat, this->hueMapping.val};
+    }
+
+    cv::Mat construct(cv::Mat mapMat) const override {
+      cv::Mat &hMat = mapMat;
+      cv::Mat sMat(hMat.size(), CV_8UC1, cv::Scalar(this->hueMapping.sat * 255.0));
+      cv::Mat vMat(hMat.size(), CV_8UC1, cv::Scalar(this->hueMapping.val * 255.0));
+      cv::Mat dst;
+      cv::merge(std::vector<cv::Mat>{hMat, sMat, vMat}, dst);
+      return dst;
     }
   };
 
@@ -156,15 +176,28 @@ namespace ns_cm {
       this->satMapping.endSat = endSat;
       this->satMapping.val = val;
     }
-
-    float getStart() const override {
+    float getByteStart() const override {
+      return this->satMapping.startSat * 255.0;
+    }
+    float getByteEnd() const override {
+      return this->satMapping.endSat * 255.0;
+    }
+    float getStdStart() const override {
       return this->satMapping.startSat;
     }
-    float getEnd() const override {
+    float getStdEnd() const override {
       return this->satMapping.endSat;
     }
     Chsv construct() const override {
       return {this->satMapping.hue, this->mapValue, this->satMapping.val};
+    }
+    cv::Mat construct(cv::Mat mapMat) const override {
+      cv::Mat hMat(mapMat.size(), CV_8UC1, cv::Scalar(this->satMapping.hue / 360.0 * 255.0));
+      cv::Mat &sMat = mapMat;
+      cv::Mat vMat(mapMat.size(), CV_8UC1, cv::Scalar(this->satMapping.val * 255.0));
+      cv::Mat dst;
+      cv::merge(std::vector<cv::Mat>{hMat, sMat, vMat}, dst);
+      return dst;
     }
   };
 
@@ -177,14 +210,29 @@ namespace ns_cm {
       this->valMapping.endVal = endVal;
     }
 
-    float getStart() const override {
+    float getByteStart() const override {
+      return this->valMapping.startVal * 255.0;
+    }
+    float getByteEnd() const override {
+      return this->valMapping.endVal * 255.0;
+    }
+    float getStdStart() const override {
       return this->valMapping.startVal;
     }
-    float getEnd() const override {
+    float getStdEnd() const override {
       return this->valMapping.endVal;
     }
     Chsv construct() const override {
       return {this->valMapping.hue, this->valMapping.sat, this->mapValue};
+    }
+
+    cv::Mat construct(cv::Mat mapMat) const override {
+      cv::Mat hMat(mapMat.size(), CV_8UC1, cv::Scalar(this->valMapping.hue / 360.0 * 255.0));
+      cv::Mat sMat(mapMat.size(), CV_8UC1, cv::Scalar(this->valMapping.sat * 255.0));
+      cv::Mat &vMat = mapMat;
+      cv::Mat dst;
+      cv::merge(std::vector<cv::Mat>{hMat, sMat, vMat}, dst);
+      return dst;
     }
   };
 
@@ -231,7 +279,7 @@ namespace ns_cm {
     if (reversal) {
       value = srcMax - (value - srcMin);
     }
-    float start = map.getStart(), end = map.getEnd();
+    float start = map.getStdStart(), end = map.getStdEnd();
     float mapVal = (value - srcMin) / (srcMax - srcMin) * (end - start) + start;
 
     // color mapping
@@ -248,7 +296,7 @@ namespace ns_cm {
     if (reversal) {
       value = srcMax - (value - srcMin);
     }
-    float start = map.getStart(), end = map.getEnd();
+    float start = map.getStdStart(), end = map.getStdEnd();
     float mapVal = (value - srcMin) / (srcMax - srcMin) * (end - start);
     if (classes == 0) {
       classes = 1;
@@ -262,6 +310,33 @@ namespace ns_cm {
     return hsv2rgb(map.setMap(mapVal).construct());
   }
 
+  static cv::Mat mapping(cv::Mat srcImg, float srcMin, float srcMax,
+                         const HSVMapping &map = style::panchromatic, bool reversal = false) {
+    cv::Mat floatImg, refineMat;
+    srcImg.convertTo(floatImg, CV_32FC1);
+
+    refineMat = cv::max(srcMin, cv::min(srcMax, floatImg));
+
+    float startVal = map.getByteStart(), endVal = map.getByteEnd();
+
+    if (reversal) {
+      float temp = startVal;
+      startVal = endVal;
+      endVal = temp;
+    }
+
+    // [srcMin, srcMax] to [startVal, endVal]
+    // (pixel - srcMin)/(srcMax - srcMin)*(endVal - startVal) + startVal
+
+    cv::Mat gray;
+    float factor = (endVal - startVal) / (srcMax - srcMin);
+    refineMat.convertTo(gray, CV_8UC1, factor, -srcMin * factor + startVal);
+
+    cv::Mat color = map.construct(gray);
+    cv::cvtColor(color, color, cv::COLOR_HSV2BGR);
+
+    return color;
+  }
 } // namespace ns_cm
 
 #endif
