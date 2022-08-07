@@ -5,13 +5,13 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 
-const ns_cm::HSVMapping &mapStyle = ns_cm::style::red;
-bool reversal = true;
+const ns_cm::HSVMapping &mapStyle = ns_cm::style::orange;
+bool reversal = false;
 
 void test1() {
+  auto depth = cv::imread("../img/color_mapping/depth.png", cv::IMREAD_UNCHANGED);
   ns_timer::Timer timer;
   timer.re_start();
-  auto depth = cv::imread("../img/color_mapping/depth.png", cv::IMREAD_UNCHANGED);
   int rows = depth.rows, cols = depth.cols;
   LOG_VAR(rows, cols);
   cv::Mat color(cv::Size(cols, rows), CV_8UC3, cv::Scalar(255, 255, 255));
@@ -34,9 +34,9 @@ void test1() {
 }
 
 void test2() {
+  auto depth = cv::imread("../img/color_mapping/depth.png", cv::IMREAD_UNCHANGED);
   ns_timer::Timer timer;
   timer.re_start();
-  auto depth = cv::imread("../img/color_mapping/depth.png", cv::IMREAD_UNCHANGED);
   cv::Mat dst = ns_cm::mapping(depth, 500.0f, 2000.0f, mapStyle, reversal);
   LOG_INFO(timer.last_elapsed("method in test2"));
   cv::imshow("test2", dst);

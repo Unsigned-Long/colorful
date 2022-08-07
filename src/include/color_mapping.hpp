@@ -131,7 +131,7 @@ namespace ns_cm {
     virtual float getByteStart() const = 0;
     virtual float getByteEnd() const = 0;
     virtual Chsv construct() const = 0;
-    virtual cv::Mat construct(cv::Mat mapMat) const = 0;
+    virtual cv::Mat construct(const cv::Mat &mapMat) const = 0;
   };
 
   // mapValue value to hue dime
@@ -158,8 +158,8 @@ namespace ns_cm {
       return {this->mapValue, this->hueMapping.sat, this->hueMapping.val};
     }
 
-    cv::Mat construct(cv::Mat mapMat) const override {
-      cv::Mat &hMat = mapMat;
+    cv::Mat construct(const cv::Mat &mapMat) const override {
+      const cv::Mat &hMat = mapMat;
       cv::Mat sMat(hMat.size(), CV_8UC1, cv::Scalar(this->hueMapping.sat * 255.0));
       cv::Mat vMat(hMat.size(), CV_8UC1, cv::Scalar(this->hueMapping.val * 255.0));
       cv::Mat dst;
@@ -191,9 +191,9 @@ namespace ns_cm {
     Chsv construct() const override {
       return {this->satMapping.hue, this->mapValue, this->satMapping.val};
     }
-    cv::Mat construct(cv::Mat mapMat) const override {
+    cv::Mat construct(const cv::Mat &mapMat) const override {
       cv::Mat hMat(mapMat.size(), CV_8UC1, cv::Scalar(this->satMapping.hue / 360.0 * 255.0));
-      cv::Mat &sMat = mapMat;
+      const cv::Mat &sMat = mapMat;
       cv::Mat vMat(mapMat.size(), CV_8UC1, cv::Scalar(this->satMapping.val * 255.0));
       cv::Mat dst;
       cv::merge(std::vector<cv::Mat>{hMat, sMat, vMat}, dst);
@@ -226,10 +226,10 @@ namespace ns_cm {
       return {this->valMapping.hue, this->valMapping.sat, this->mapValue};
     }
 
-    cv::Mat construct(cv::Mat mapMat) const override {
+    cv::Mat construct(const cv::Mat &mapMat) const override {
       cv::Mat hMat(mapMat.size(), CV_8UC1, cv::Scalar(this->valMapping.hue / 360.0 * 255.0));
       cv::Mat sMat(mapMat.size(), CV_8UC1, cv::Scalar(this->valMapping.sat * 255.0));
-      cv::Mat &vMat = mapMat;
+      const cv::Mat &vMat = mapMat;
       cv::Mat dst;
       cv::merge(std::vector<cv::Mat>{hMat, sMat, vMat}, dst);
       return dst;
@@ -310,12 +310,9 @@ namespace ns_cm {
     return hsv2rgb(map.setMap(mapVal).construct());
   }
 
-  static cv::Mat mapping(cv::Mat srcImg, float srcMin, float srcMax,
+  static cv::Mat mapping(const cv::Mat &srcImg, float srcMin, float srcMax,
                          const HSVMapping &map = style::panchromatic, bool reversal = false) {
-    cv::Mat floatImg, refineMat;
-    srcImg.convertTo(floatImg, CV_32FC1);
-
-    refineMat = cv::max(srcMin, cv::min(srcMax, floatImg));
+    cv::Mat refineMat = cv::max(srcMin, cv::min(srcMax, srcImg));
 
     float startVal = map.getByteStart(), endVal = map.getByteEnd();
 
@@ -332,10 +329,10 @@ namespace ns_cm {
     float factor = (endVal - startVal) / (srcMax - srcMin);
     refineMat.convertTo(gray, CV_8UC1, factor, -srcMin * factor + startVal);
 
-    cv::Mat color = map.construct(gray);
-    cv::cvtColor(color, color, cv::COLOR_HSV2BGR);
+    cv::Mat hsv = map.construct(gray), bgr;
+    cv::cvtColor(hsv, bgr, cv::COLOR_HSV2BGR_FULL);
 
-    return color;
+    return bgr;
   }
 } // namespace ns_cm
 
